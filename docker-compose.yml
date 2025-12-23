@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3006:3006"
+    environment:
+      - PORT=3006
+      - PG_HOST=${PG_HOST:-127.0.0.1}
+      - PG_PORT=${PG_PORT:-5432}
+      - PG_USER=${PG_USER}
+      - PG_PASSWORD=${PG_PASSWORD}
+      - PG_DATABASE=${PG_DATABASE}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL}
+      - DROPBOX_ACCESS_TOKEN=${DROPBOX_ACCESS_TOKEN}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL:-/api}
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
