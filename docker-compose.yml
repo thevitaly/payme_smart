@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # Backend API (Node.js)
   backend:
     build:
       context: ./backend
@@ -22,6 +23,7 @@ services:
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost}
     restart: unless-stopped
 
+  # Frontend (React + Nginx)
   frontend:
     build:
       context: ./frontend
@@ -33,3 +35,29 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+  # Telegram Bot (Python)
+  bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DB_HOST=${DB_HOST:-127.0.0.1}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_NAME=${DB_NAME:-jvkpro}
+      - DB_USER=${DB_USER:-migrator}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - ADMIN_IDS=${ADMIN_IDS}
+      - ALLOWED_USER_IDS=${ALLOWED_USER_IDS}
+      - DROPBOX_ACCESS_TOKEN=${DROPBOX_ACCESS_TOKEN}
+      - DROPBOX_APP_KEY=${DROPBOX_APP_KEY}
+      - DROPBOX_APP_SECRET=${DROPBOX_APP_SECRET}
+      - DROPBOX_REFRESH_TOKEN=${DROPBOX_REFRESH_TOKEN}
+    volumes:
+      - bot_uploads:/app/uploads
+    restart: unless-stopped
+
+volumes:
+  bot_uploads:
